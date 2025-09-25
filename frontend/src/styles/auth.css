@@ -1,0 +1,234 @@
+/* --- Auth Page --- */
+.authpage {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100vw;
+  height: 100vh;
+  background: url("../assets/background.png") no-repeat center center;
+  background-size: cover;
+  font-family: "Poppins", sans-serif;
+  color: #fff;
+  box-sizing: border-box;
+  align-items: stretch;
+  justify-content: center;
+  gap: 20px;
+  overflow-x: hidden;
+  padding: 20px;
+  position: relative;
+}
+
+/* Left Panel */
+.auth-left {
+  flex: 1 1 350px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: transparent; /* fully transparent */
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-left:hover {
+  transform: scale(1.02);
+}
+
+/* Parallax effect container */
+.auth-left .img-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  width: 100%;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.auth-left img {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #84cc16;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease;
+}
+
+.auth-left img:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+/* Text with shadow for visibility */
+.auth-left h1,
+.auth-left p {
+  text-align: center;
+  z-index: 2;
+  text-shadow: 1px 1px 6px rgba(0,0,0,0.6);
+}
+
+.auth-left h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-left p {
+  font-size: 1.1rem;
+  color: #d9f99d;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+/* Right Panel (Form) */
+.auth-right {
+  flex: 1 1 350px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;      /* vertical layout */
+  align-items: center;
+  justify-content: center;     /* center form wrapper */
+  padding: 2rem;
+  background: rgba(0,0,0,0.25);
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-right:hover {
+  transform: scale(1.02);
+}
+
+/* Form Wrapper */
+.auth-form-wrapper {
+  width: 100%;
+  background: rgba(0,0,0,0.55);
+  border-radius: 16px;
+  padding: 2rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Form Styles */
+.auth-form {
+  flex: 1;
+}
+
+.auth-form h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #f4f4f4;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.auth-form input,
+.auth-form select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #84cc16;
+  outline: none;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.95);
+  color: #333;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+  border: 2px solid #65a30d;
+  box-shadow: 0 0 10px #84cc16;
+}
+
+.auth-form button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #84cc16, #4d7c0f);
+  color: #fff;
+  border: 2px solid #65a30d;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-form button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+.toggle {
+  margin-top: 1rem;
+  text-align: center;
+  cursor: pointer;
+  color: #bbf7d0;
+  font-size: 0.9rem;
+}
+
+.toggle:hover {
+  text-decoration: underline;
+}
+
+/* Footer always at bottom */
+.auth-right footer {
+  margin-top: auto; /* pushes footer to bottom */
+  font-size: 0.8rem;
+  text-align: center;
+  color: #ddd;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+  .authpage {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    padding: 20px 10px;
+  }
+
+  .auth-left,
+  .auth-right {
+    flex: 1 1 100%;
+    width: 100%;
+    border-radius: 20px;
+  }
+
+  .auth-left {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-left img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .auth-left h1 {
+    font-size: 1.6rem;
+  }
+
+  .auth-left p {
+    font-size: 0.95rem;
+    max-width: 260px;
+  }
+
+  .auth-form h2 {
+    font-size: 1.4rem;
+  }
+
+  .auth-form input,
+  .auth-form select,
+  .auth-form button {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+}

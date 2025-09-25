@@ -1,0 +1,25 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment files
+*.env
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Python (if backend is Python/Flask/Django)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# IDE/editor
+.vscode/
+.idea/
+.DS_Store

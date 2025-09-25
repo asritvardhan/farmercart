@@ -1,0 +1,25 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Import Global Styles */
+@import './styles/global.css';
+
+/* Override default Vite styles for Farmer Cart */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove default Vite centering */
+body {
+  display: block !important;
+  place-items: unset !important;
+}
+
+/* Ensure full width and height */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+}

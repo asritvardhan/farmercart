@@ -1,0 +1,484 @@
+/* 🌾 User Dashboard - Enhanced Farming E-commerce Theme */
+/* Import global styles for consistency */
+@import './global.css';
+
+/* User-specific overrides and enhancements */
+.user-dashboard {
+  font-family: var(--font-family-primary);
+  background: linear-gradient(135deg, var(--pale-green) 0%, var(--light-green) 50%, #e8f5e8 100%);
+  color: var(--primary-green);
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Add farming pattern overlay */
+.user-dashboard::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 30% 70%, rgba(34, 197, 94, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 70% 30%, rgba(77, 124, 15, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(34, 94, 32, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 🌿 Enhanced User Navbar */
+.user-navbar {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  right: 0;
+  height: 72px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-green-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-8);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+  z-index: 1100;
+}
+
+.user-navbar .logo {
+  height: 50px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  border: 2px solid rgba(34, 197, 94, 0.2);
+}
+
+.user-navbar .logo:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.user-navbar ul {
+  list-style: none;
+  display: flex;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.user-navbar li {
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  color: var(--primary-green);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+.user-navbar li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+  transition: left var(--transition-normal);
+}
+
+.user-navbar li:hover::before {
+  left: 100%;
+}
+
+.user-navbar li.active,
+.user-navbar li:hover {
+  background: linear-gradient(135deg, var(--accent-green), var(--secondary-green));
+  color: var(--white);
+  border-color: var(--accent-green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 🌻 Enhanced Content Wrapper */
+.user-content {
+  padding: 96px var(--space-8) var(--space-8) var(--space-8);
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
+  position: relative;
+  z-index: 5;
+}
+
+/* 🌱 Enhanced Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-8);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 🎨 Enhanced Cards */
+.farmer-card, .border {
+  background: linear-gradient(135deg, var(--white) 0%, var(--neutral-50) 100%);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--neutral-200);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.farmer-card::before,
+.border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-green), var(--secondary-green));
+}
+
+.farmer-card:hover, 
+.border:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--accent-green);
+}
+
+.farmer-card h3, 
+.border h3 {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-2);
+  color: var(--primary-green);
+}
+
+.farmer-card p, 
+.border p {
+  font-size: var(--font-size-base);
+  color: var(--neutral-600);
+  line-height: var(--line-height-relaxed);
+}
+
+.farmer-card a, 
+.border a {
+  color: var(--accent-green);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-lg);
+  display: inline-block;
+  transition: all var(--transition-normal);
+  background: rgba(34, 197, 94, 0.1);
+  border: 2px solid transparent;
+  text-align: center;
+}
+
+.farmer-card a:hover, 
+.border a:hover {
+  background: var(--accent-green);
+  color: var(--white);
+  border-color: var(--accent-green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 🖼️ Enhanced Images */
+.border img, 
+.farmer-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+  border: 2px solid var(--neutral-200);
+}
+
+.border img:hover, 
+.farmer-card img:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-green);
+}
+
+/* 📄 Enhanced Product Detail */
+.p-6 {
+  background: linear-gradient(135deg, var(--white) 0%, var(--neutral-50) 100%);
+  padding: var(--space-8);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  max-width: 800px;
+  margin: var(--space-8) auto;
+  border: 2px solid var(--neutral-200);
+  position: relative;
+  overflow: hidden;
+}
+
+.p-6::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-green), var(--secondary-green));
+}
+
+.p-6 img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--neutral-200);
+  transition: all var(--transition-normal);
+}
+
+.p-6 img:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-xl);
+}
+
+.p-6 h2 {
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--space-4);
+  color: var(--primary-green);
+  text-align: center;
+}
+
+.p-6 p {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-4);
+  color: var(--neutral-700);
+  line-height: var(--line-height-relaxed);
+}
+
+.p-6 .text-gray-500 {
+  color: var(--neutral-500);
+  font-size: var(--font-size-base);
+  font-style: italic;
+}
+
+/* 🎛️ Enhanced Action Buttons */
+.p-6 .flex {
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.p-6 button {
+  flex: 1 1 200px;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  padding: var(--space-4) var(--space-6);
+  cursor: pointer;
+  color: var(--white);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  min-height: 50px;
+}
+
+.p-6 button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--transition-normal);
+}
+
+.p-6 button:hover::before {
+  left: 100%;
+}
+
+.p-6 button.bg-green-600 { 
+  background: linear-gradient(135deg, var(--success), var(--accent-green));
+}
+
+.p-6 button.bg-green-600::after {
+  content: '🛒';
+  margin-left: var(--space-2);
+}
+
+.p-6 button.bg-green-600:hover { 
+  background: linear-gradient(135deg, #15803d, var(--success));
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.p-6 button.bg-yellow-500 { 
+  background: linear-gradient(135deg, var(--warning), #facc15);
+  color: var(--primary-green);
+}
+
+.p-6 button.bg-yellow-500::after {
+  content: '⭐';
+  margin-left: var(--space-2);
+}
+
+.p-6 button.bg-yellow-500:hover { 
+  background: linear-gradient(135deg, #d97706, var(--warning));
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.p-6 button.bg-blue-600 { 
+  background: linear-gradient(135deg, var(--info), #2563eb);
+}
+
+.p-6 button.bg-blue-600::after {
+  content: '📞';
+  margin-left: var(--space-2);
+}
+
+.p-6 button.bg-blue-600:hover { 
+  background: linear-gradient(135deg, #1e40af, var(--info));
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 📱 Enhanced Responsive Design */
+@media (max-width: 1024px) {
+  .user-content { 
+    padding: 88px var(--space-6) var(--space-6); 
+    max-width: 100%; 
+  }
+  
+  .p-6 { 
+    margin: var(--space-6) var(--space-4); 
+    padding: var(--space-6); 
+  }
+  
+  .border img, 
+  .farmer-card img { 
+    height: 180px; 
+  }
+  
+  .p-6 img {
+    height: 350px;
+  }
+  
+  .grid {
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 768px) {
+  .user-navbar { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    height: auto; 
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+  
+  .user-navbar ul { 
+    flex-wrap: wrap; 
+    gap: var(--space-3); 
+    width: 100%; 
+    justify-content: space-around; 
+  }
+  
+  .user-navbar li {
+    font-size: var(--font-size-sm);
+    padding: var(--space-2) var(--space-4);
+  }
+  
+  .grid { 
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  
+  .p-6 { 
+    margin: var(--space-4) var(--space-2);
+    padding: var(--space-4);
+  }
+  
+  .p-6 img { 
+    height: 280px; 
+  }
+  
+  .p-6 h2 {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .p-6 button {
+    flex: 1 1 150px;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid { 
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  
+  .user-navbar { 
+    padding: var(--space-3);
+  }
+  
+  .user-navbar li { 
+    font-size: var(--font-size-xs); 
+    padding: var(--space-2) var(--space-3); 
+  }
+  
+  .user-content {
+    padding: 100px var(--space-3) var(--space-4);
+  }
+  
+  .p-6 { 
+    padding: var(--space-4);
+    margin: var(--space-3) var(--space-2);
+  }
+  
+  .p-6 img { 
+    height: 220px; 
+  }
+  
+  .p-6 h2 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .p-6 button { 
+    flex: 1 1 100%; 
+    margin-bottom: var(--space-2);
+  }
+  
+  .farmer-card,
+  .border {
+    padding: var(--space-4);
+  }
+  
+  .border img,
+  .farmer-card img {
+    height: 160px;
+  }
+}

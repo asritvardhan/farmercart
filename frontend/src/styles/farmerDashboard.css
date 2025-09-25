@@ -1,0 +1,675 @@
+/* 🌾 Farmer Dashboard - Enhanced Farming Theme */
+/* Import global styles for consistency */
+@import './global.css';
+
+/* Farmer-specific overrides and enhancements */
+.farmer-dashboard {
+  font-family: var(--font-family-primary);
+  background: linear-gradient(135deg, var(--pale-green) 0%, var(--light-green) 50%, #e8f5e8 100%);
+  color: var(--primary-green);
+  line-height: var(--line-height-normal);
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Add farming pattern overlay */
+.farmer-dashboard::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 75%, rgba(34, 197, 94, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 75% 25%, rgba(77, 124, 15, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(34, 94, 32, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 🌿 Enhanced Farmer Navbar */
+.farmer-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+  background: rgba(34, 94, 32, 0.95);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-8);
+  box-shadow: var(--shadow-green-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.farmer-navbar .logo {
+  height: 50px;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-md);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.farmer-navbar .logo:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.farmer-navbar ul {
+  display: flex;
+  list-style: none;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.farmer-navbar ul li {
+  cursor: pointer;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--white);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  border: 2px solid transparent;
+}
+
+.farmer-navbar ul li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left var(--transition-normal);
+}
+
+.farmer-navbar ul li:hover::before {
+  left: 100%;
+}
+
+.farmer-navbar ul li:hover {
+  background: rgba(77, 124, 15, 0.8);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-md);
+}
+
+.farmer-navbar ul li.active {
+  background: var(--wheat-gold);
+  color: var(--primary-green);
+  font-weight: var(--font-weight-bold);
+  border-color: var(--wheat-gold);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 🌻 Enhanced Main Content */
+.farmer-content {
+  padding: 120px var(--space-8) var(--space-8) var(--space-8);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 85vh;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  overflow-x: hidden;
+  position: relative;
+  z-index: 5;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 🌿 Enhanced Section Headers */
+.my-products h2,
+.add-product-container h2 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-extrabold);
+  margin-bottom: var(--space-8);
+  text-align: center;
+  color: var(--primary-green);
+  position: relative;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.my-products h2::after,
+.add-product-container h2::after {
+  content: '';
+  position: absolute;
+  bottom: -var(--space-2);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-green), var(--secondary-green));
+  border-radius: var(--radius-full);
+}
+
+/* 📊 My Products - Optimized Table */
+.my-products .products-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 var(--space-1);
+  background: none;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--space-3);
+}
+
+.my-products .products-table th,
+.my-products .products-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--neutral-200);
+  text-align: left;
+  word-wrap: break-word;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--font-size-xs);
+}
+
+.my-products .products-table thead {
+  background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+  color: var(--white);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.2px;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.my-products .products-table thead th {
+  background: transparent;
+  border: none;
+  box-shadow: var(--shadow-sm);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  padding: var(--space-2);
+}
+
+.my-products .products-table tbody tr:hover {
+  background: var(--pale-green);
+  transition: background var(--transition-normal);
+}
+
+.my-products .products-table tbody tr:hover td {
+  box-shadow: var(--shadow-green-sm);
+  transform: translateY(-1px);
+  border-color: var(--accent-green);
+}
+
+.my-products .products-table img {
+  max-width: 50px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--neutral-200);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.my-products .products-table img:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 🎛️ My Products - Compact Action Buttons */
+.my-products .edit-btn,
+.my-products .delete-btn {
+  padding: var(--space-1);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  min-width: 40px;
+  margin: var(--space-1);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.my-products .edit-btn {
+  background: linear-gradient(135deg, var(--info), #1e40af);
+  color: var(--white);
+}
+
+.my-products .edit-btn::before {
+  content: '✏️';
+  font-size: var(--font-size-xs);
+}
+
+.my-products .edit-btn:hover {
+  background: linear-gradient(135deg, #1e40af, var(--info));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.my-products .delete-btn {
+  background: linear-gradient(135deg, var(--error), #dc2626);
+  color: var(--white);
+}
+
+.my-products .delete-btn::before {
+  content: '🗑️';
+  font-size: var(--font-size-xs);
+}
+
+.my-products .delete-btn:hover {
+  background: linear-gradient(135deg, #dc2626, var(--error));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 🪟 Optimized Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  background: var(--white);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  width: 480px;
+  max-width: 95%;
+  box-shadow: var(--shadow-xl);
+  animation: slideIn 0.3s ease-out;
+  color: var(--primary-green);
+  border: 1px solid var(--neutral-200);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-green), var(--secondary-green));
+}
+
+.modal h3 {
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-green);
+  text-align: center;
+}
+
+.modal label {
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--space-3);
+  display: block;
+  color: var(--neutral-700);
+  font-size: var(--font-size-sm);
+}
+
+.modal input,
+.modal textarea {
+  width: 100%;
+  padding: var(--space-3);
+  border: 2px solid var(--neutral-300);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-2);
+  transition: all var(--transition-normal);
+  font-family: var(--font-family-primary);
+  background: var(--neutral-50);
+  font-size: var(--font-size-sm);
+}
+
+.modal input:focus,
+.modal textarea:focus {
+  border-color: var(--accent-green);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
+  outline: none;
+  background: var(--white);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.modal-actions button {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-size: var(--font-size-xs);
+  border: none;
+  position: relative;
+  overflow: hidden;
+  min-width: 60px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-actions button:first-child {
+  background: linear-gradient(135deg, var(--success), var(--accent-green));
+  color: var(--white);
+}
+
+.modal-actions button:first-child::before {
+  content: '✅';
+  font-size: var(--font-size-xs);
+}
+
+.modal-actions button:first-child:hover {
+  background: linear-gradient(135deg, #15803d, var(--success));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.modal-actions button:last-child {
+  background: var(--neutral-200);
+  color: var(--neutral-700);
+}
+
+.modal-actions button:last-child::before {
+  content: '❌';
+  font-size: var(--font-size-xs);
+}
+
+.modal-actions button:last-child:hover {
+  background: var(--neutral-300);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 🎨 Optimized Add Product Form */
+.add-product-container {
+  width: 100%;
+  max-width: none;
+  margin: var(--space-6) 0;
+  background: linear-gradient(135deg, var(--white) 0%, var(--neutral-50) 100%);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--neutral-200);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.add-product-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-green), var(--secondary-green));
+}
+
+.add-product-container h2 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-6);
+  color: var(--primary-green);
+  font-weight: var(--font-weight-extrabold);
+  text-align: center;
+  position: relative;
+}
+
+.add-product-container h2::after {
+  content: '';
+  position: absolute;
+  bottom: -var(--space-2);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-green), var(--secondary-green));
+  border-radius: var(--radius-full);
+}
+
+/* 📝 Optimized Form Layout */
+.add-product-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4) var(--space-6);
+}
+
+@media (min-width: 600px) {
+  .add-product-form {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .add-product-form textarea,
+  .add-product-form button {
+    grid-column: 1 / -1;
+  }
+}
+
+.add-product-form label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-green);
+  margin-bottom: var(--space-2);
+  display: block;
+  font-size: var(--font-size-sm);
+}
+
+/* Optimized Inputs & Textarea */
+.add-product-form input,
+.add-product-form textarea {
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--neutral-300);
+  transition: all var(--transition-normal);
+  font-size: var(--font-size-sm);
+  background: var(--neutral-50);
+  font-family: var(--font-family-primary);
+  color: var(--neutral-800);
+}
+
+.add-product-form input:focus,
+.add-product-form textarea:focus {
+  border-color: var(--accent-green);
+  background: var(--white);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
+  outline: none;
+}
+
+.add-product-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* 📤 Optimized Submit Button */
+.add-product-form button {
+  background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+  color: var(--white);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  margin-top: var(--space-3);
+  width: 100%;
+  user-select: none;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.add-product-form button::before {
+  content: '🌱';
+  margin-right: var(--space-2);
+  font-size: var(--font-size-base);
+}
+
+.add-product-form button:hover {
+  background: linear-gradient(135deg, var(--secondary-green), var(--primary-green));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ✨ Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 📱 Enhanced Responsive Design */
+@media (max-width: 768px) {
+  .farmer-content {
+    padding: 110px var(--space-4) var(--space-6) var(--space-4);
+    margin: 0 var(--space-2);
+    border-radius: var(--radius-xl);
+  }
+  
+  .farmer-navbar {
+    padding: var(--space-3) var(--space-4);
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  
+  .farmer-navbar ul {
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .farmer-navbar ul li {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-xs);
+  }
+  
+  .products-table img {
+    max-width: 60px;
+  }
+  
+  .modal {
+    width: 95%;
+    padding: var(--space-6);
+    margin: var(--space-4);
+  }
+  
+  .add-product-container {
+    padding: var(--space-6);
+    margin: var(--space-4) 0;
+  }
+  
+  .add-product-form {
+    gap: var(--space-4);
+  }
+  
+  .my-products h2,
+  .add-product-container h2 {
+    font-size: var(--font-size-3xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .farmer-content {
+    padding: 100px var(--space-3) var(--space-4) var(--space-3);
+    margin: 0 var(--space-1);
+  }
+  
+  .farmer-navbar {
+    padding: var(--space-2) var(--space-3);
+  }
+  
+  .farmer-navbar ul {
+    gap: var(--space-2);
+  }
+  
+  .farmer-navbar ul li {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+  
+  .my-products .products-table th,
+  .my-products .products-table td {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--font-size-xs);
+  }
+  
+  .my-products .products-table img {
+    max-width: 35px;
+  }
+  
+  .my-products .edit-btn,
+  .my-products .delete-btn {
+    padding: var(--space-1);
+    font-size: var(--font-size-xs);
+    min-width: 35px;
+    height: 24px;
+    margin: var(--space-1);
+  }
+  
+  .modal {
+    padding: var(--space-4);
+  }
+  
+  .modal h3 {
+    font-size: var(--font-size-xl);
+  }
+  
+  .modal input,
+  .modal textarea {
+    padding: var(--space-3);
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  
+  .modal-actions button {
+    width: 100%;
+  }
+  
+  .add-product-container {
+    padding: var(--space-4);
+  }
+  
+  .add-product-form input,
+  .add-product-form textarea {
+    padding: var(--space-3);
+  }
+  
+  .add-product-form button {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-base);
+  }
+  
+  .my-products h2,
+  .add-product-container h2 {
+    font-size: var(--font-size-2xl);
+  }
+}

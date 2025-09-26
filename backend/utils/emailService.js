@@ -207,6 +207,50 @@ const emailTemplates = {
       </html>
     `
   }),
+farmerOrderNotification: (farmerName, farmerEmail, orderDetails) => ({
+  from: process.env.EMAIL_FROM,
+  to: farmerEmail,
+  subject: `📦 New Order Received - #${orderDetails.orderId.slice(-8).toUpperCase()}`,
+  html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #2d5a27, #4caf50); color: white; padding: 25px; text-align: center; border-radius: 10px 10px 0 0; }
+        .order-details { background: #fff; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2d5a27; }
+        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 14px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h2>New Order Alert 🚜</h2>
+        <p>Hi ${farmerName}, you have received a new order!</p>
+      </div>
+
+      <div class="order-details">
+        <h3>Order Details</h3>
+        <p><strong>Order ID:</strong> #${orderDetails.orderId.slice(-8).toUpperCase()}</p>
+        <p><strong>Product:</strong> ${orderDetails.productName}</p>
+        <p><strong>Quantity:</strong> ${orderDetails.quantity}</p>
+        <p><strong>Price:</strong> ₹${orderDetails.price}</p>
+      </div>
+
+      <div class="order-details">
+        <h3>Buyer Information</h3>
+        <p><strong>Name:</strong> ${orderDetails.buyerName}</p>
+        <p><strong>Email:</strong> ${orderDetails.buyerEmail}</p>
+        <p><strong>Delivery Address:</strong> ${orderDetails.deliveryAddress}</p>
+      </div>
+
+      <div class="footer">
+        <p><strong>Farmer Cart</strong> - Bringing farmers and customers closer</p>
+      </div>
+    </body>
+    </html>
+  `
+}),
 
   welcomeUser: (userName, userEmail) => ({
     from: process.env.EMAIL_FROM,

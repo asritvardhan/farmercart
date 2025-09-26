@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const Order = require("../models/Order");
-
+const User = require("../models/User");
+const {sendEmail} = require("../utils/emailService");
 // ✅ Create new product
 const createProduct = async (req, res) => {
   try {
@@ -145,36 +146,32 @@ const getFarmerOrders = async (req, res) => {
     console.error("❌ Error fetching farmer orders:", err);
     res.status(500).json({ message: "Error fetching orders", error: err.message });
   }
-};
-
-// ✅ Update order status - SECURITY FIXED
+}; 
+// ✅ Update order status with user email notifications
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { itemId, status } = req.body;
     const farmerId = req.user._id;
 
-    console.log("Update request from farmer:", farmerId, "for order:", orderId, "item:", itemId); // Debug
+    console.log("Update request from farmer:", farmerId, "for order:", orderId, "item:", itemId);
 
     const validStatuses = ["Pending", "Accepted", "Shipped", "Delivered", "Cancelled"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
-    // Find the order
-    const order = await Order.findById(orderId);
+    // Find the order and populate product details
+    const order = await Order.findById(orderId).populate("items.product");
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    console.log("Order found, items count:", order.items.length); // Debug
-
-    // Find the specific item that belongs to this farmer
-    const itemIndex = order.items.findIndex(item => 
-      item._id.toString() === itemId && 
+    // Find the specific item belonging to this farmer
+    const itemIndex = order.items.findIndex(item =>
+      item._id.toString() === itemId &&
       item.farmer.toString() === farmerId.toString()
     );
 
     if (itemIndex === -1) {
-      console.log("Item not found or not authorized"); // Debug
       return res.status(403).json({ message: "Not authorized to update this item or item not found" });
     }
 
@@ -185,56 +182,75 @@ const updateOrderStatus = async (req, res) => {
     }
 
     // Update overall order status based on all items
-    const allItemsStatus = order.items.map(item => item.status);
-    if (allItemsStatus.every(s => s === "Cancelled")) {
-      order.status = "Cancelled";
-    } else if (allItemsStatus.every(s => s === "Delivered")) {
-      order.status = "Delivered";
-    } else if (allItemsStatus.some(s => s === "Shipped")) {
-      order.status = "Shipped";
-    } else if (allItemsStatus.some(s => s === "Accepted")) {
-      order.status = "Accepted";
-    } else {
-      order.status = "Pending";
-    }
+    const allStatuses = order.items.map(item => item.status);
+    if (allStatuses.every(s => s === "Cancelled")) order.status = "Cancelled";
+    else if (allStatuses.every(s => s === "Delivered")) order.status = "Delivered";
+    else if (allStatuses.some(s => s === "Shipped")) order.status = "Shipped";
+    else if (allStatuses.some(s => s === "Accepted")) order.status = "Accepted";
+    else order.status = "Pending";
 
     await order.save();
-try {
+
+    // ✅ Send email to the user (customer)
+    try {
       const user = await User.findById(order.user);
       if (user && user.email) {
-        await sendEmail('orderStatusUpdate', [
+        const updatedItem = order.items[itemIndex];
+        await sendEmail("orderStatusUpdate", [
           user.name,
           user.email,
           {
-            orderId: order._id,
-            status: status,
-            // Add any other order details you want to include
-          }
+            orderId: order._id.toString(),
+            productName: updatedItem.product.name,
+            quantity: updatedItem.quantity,
+            status,
+          },
         ]);
       }
     } catch (emailError) {
-      console.error('Status update email failed:', emailError);
+      console.error("❌ Status update email failed:", emailError);
     }
-    // Populate the order for response
+
+    // ✅ Optional: Notify the farmer about new orders (only if needed)
+    try {
+      const updatedItem = order.items[itemIndex];
+      await sendEmail("farmerOrderNotification", [
+        req.user.name,
+        req.user.email,
+        {
+          orderId: order._id.toString(),
+          productName: updatedItem.product.name,
+          quantity: updatedItem.quantity,
+          price: updatedItem.product.price,
+          buyerName: order.user.name,
+          buyerEmail: order.user.email,
+          deliveryAddress: order.address,
+        },
+      ]);
+    } catch (farmerEmailError) {
+      console.error("❌ Farmer notification email failed:", farmerEmailError);
+    }
+
+    // ✅ Populate order for response
     const populatedOrder = await Order.findById(orderId)
       .populate("user", "name email")
       .populate("items.product", "name price")
       .populate("items.farmer", "name email");
 
-    // Socket notification to user
+    // ✅ Socket notification
     const io = req.app.get("io");
     if (io) {
       io.to(order.user.toString()).emit("orderUpdated", populatedOrder);
     }
 
-    console.log("Status updated successfully"); // Debug
     res.json(populatedOrder);
 
   } catch (err) {
     console.error("❌ Error updating order status:", err);
     res.status(500).json({ message: "Failed to update order status", error: err.message });
   }
-};
+}; 
+
 // ✅ Farmer Reply to Review (with ownership check + timestamp)
 const replyToReview = async (req, res) => {
   try {

@@ -4,7 +4,6 @@ const Cart = require("../models/Cart");
 const User = require("../models/User");
 const Order = require("../models/Order");
 const bcrypt = require("bcryptjs");
-
 const { sendEmail } = require("../utils/emailService"); // ADD THIS LINE
 // ✅ Get all approved farmers
 const getFarmers = async (req, res) => {
@@ -299,15 +298,16 @@ const uploadProfilePicture = async (req, res) => {
     res.status(500).json({ error: "Failed to upload profile picture" });
   }
 };
-// ✅ Place order - Updated version
+// ✅ Place order - Final Updated Version
 const placeOrder = async (req, res) => {
   try {
     const { userId, address } = req.body;
 
     // Fetch cart with products populated
     const cart = await Cart.findOne({ user: userId }).populate("items.product");
-    if (!cart || cart.items.length === 0)
+    if (!cart || cart.items.length === 0) {
       return res.status(400).json({ error: "Cart is empty" });
+    }
 
     const items = [];
 
@@ -327,14 +327,17 @@ const placeOrder = async (req, res) => {
 
       items.push({
         product: product._id,
-        farmer: product.farmer, // ✅ This should reference the Farmer model
+        farmer: product.farmer, // ✅ Farmer reference
         quantity: item.quantity,
         price: product.price,
       });
     }
 
     // Calculate total price
-    const totalPrice = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const totalPrice = items.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
 
     // Create order
     const order = await Order.create({
@@ -349,29 +352,54 @@ const placeOrder = async (req, res) => {
     // Clear cart
     cart.items = [];
     await cart.save();
-    try {
-      const user = await User.findById(userId);
-      if (user && user.email) {
-        await sendEmail('orderConfirmation', [
-          user.name, 
-          user.email, 
-          {
-            orderId: order._id,
-            totalPrice: order.totalPrice,
-            address: order.address,
-            paymentMethod: order.paymentMethod
-          }
-        ]);
-      }
-    } catch (emailError) {
-      console.error('Order confirmation email failed:', emailError);
+// ✅ Send email to user
+try {
+  const user = await User.findById(userId);
+  if (user && user.email) {
+    await sendEmail("orderConfirmation", [
+      user.name,
+      user.email,
+      {
+        orderId: order._id.toString(), // ✅ convert ObjectId to string
+        totalPrice: order.totalPrice,
+        address: order.address,
+        paymentMethod: order.paymentMethod,
+      },
+    ]);
+  }
+
+  // ✅ Send email to each farmer for their products
+  for (const item of items) {
+    const farmer = await Farmer.findById(item.farmer);
+    if (farmer && farmer.email) {
+      const productDoc = await Product.findById(item.product);
+
+      await sendEmail("farmerOrderNotification", [
+        farmer.name,
+        farmer.email,
+        {
+          orderId: order._id.toString(), // ✅ convert ObjectId to string
+          productName: productDoc.name,
+          quantity: item.quantity,
+          price: item.price,
+          buyerName: user.name,
+          buyerEmail: user.email,
+          deliveryAddress: order.address,
+        },
+      ]);
     }
+  }
+} catch (emailError) {
+  console.error("Email sending failed:", emailError);
+}
+
     res.status(201).json(order);
   } catch (err) {
     console.error("Error placing order:", err);
     res.status(500).json({ error: "Failed to place order" });
   }
 };
+
 // ✅ Get user orders - Updated version
 const getUserOrders = async (req, res) => {
   try {

@@ -20,8 +20,8 @@ const productSchema = new mongoose.Schema(
     farmName: { type: String, required: true },
     location: { type: String, required: true },
     images: [{ type: String, required: true }], // Array of URLs
-    farmer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    reviews: [reviewSchema], // ✅ Embed reviews inside product
+    farmer: { type: mongoose.Schema.Types.ObjectId, ref: "Farmer", required: true },
+    reviews: [reviewSchema],  
   },
   { timestamps: true }
 );

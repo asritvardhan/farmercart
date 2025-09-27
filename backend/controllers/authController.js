@@ -35,7 +35,7 @@ const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    console.log("registered password",hashedPassword);
     let newUser;
     if (role === "farmer") {
       newUser = new Farmer({

@@ -1,46 +1,32 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     phone: { type: String, trim: true },
     address: {
       street: String,
       city: String,
       state: String,
-      pincode: String,
-      landmark: String,
+      pincode: Number,
+      landmark: String
     },
     profilePicture: { type: String, default: null },
     preferences: {
       notifications: { type: Boolean, default: true },
-      newsletter: { type: Boolean, default: false },
+      newsletter: { type: Boolean, default: false }
     },
-    role: { type: String, enum: ["farmer", "user", "admin"], default: "user" },
+    role: { type: String, enum: ['farmer', 'user', 'admin'], default: 'user' },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ['pending', 'approved', 'rejected'],
       default: function () {
-        return this.role === "farmer" ? "pending" : "approved";
+        return this.role === 'farmer' ? 'pending' : 'approved';
       },
     },
-    authProvider: { type: String, enum: ["local", "google", "facebook"], default: "local" },
   },
   { timestamps: true }
 );
-
-// Pre-save: hash password if modified
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password") || !this.password) return next();
-  try {
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
-
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

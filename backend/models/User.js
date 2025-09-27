@@ -26,8 +26,7 @@ const userSchema = new mongoose.Schema(
       default: function () {
         return this.role === 'farmer' ? 'pending' : 'approved';
       },
-    },
-    socialId: { type: String }, // Google/Facebook login
+    }, 
     authProvider: { type: String, enum: ['local', 'google', 'facebook'], default: 'local' },
   },
   { timestamps: true }

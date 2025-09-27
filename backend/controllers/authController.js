@@ -1,68 +1,49 @@
-// controllers/authController.js
 const User = require("../models/User");
 const Farmer = require("../models/Farmer");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+// const { sendEmail } = require("../utils/email"); // Uncomment if you implement sendEmail
 
 // =============================
 // 🔑 Generate JWT Token
 // =============================
 const generateToken = (id, role) => {
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is not defined in environment variables");
-  }
-
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET not defined");
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
 // =============================
-// 👤 Register (User or Farmer)
+// 👤 Register User/Farmer
 // =============================
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, pincode, location, role } = req.body;
+    let { name, email, password, pincode, location, role } = req.body;
 
-    if (!name || !email || !password || !role) {
+    if (!name || !email || !password || !role)
       return res.status(400).json({ message: "Please provide all required fields" });
-    }
 
-    let Model = role === "farmer" ? Farmer : User;
+    email = email.trim().toLowerCase();
+
+    const Model = role === "farmer" ? Farmer : User;
     const existingUser = await Model.findOne({ email });
-    if (existingUser) {
+    if (existingUser)
       return res.status(400).json({ message: `${role} with this email already exists` });
-    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("registered password",hashedPassword);
-    let newUser;
-    if (role === "farmer") {
-      newUser = new Farmer({
-        name,
-        email,
-        password: hashedPassword,
-        location,
-        role,
-      });
-    } else {
-      newUser = new User({
-        name,
-        email,
-        password: hashedPassword,
-        pincode,
-        role,
-      });
-    }
+    // Create new user (password will be hashed by schema pre-save)
+    const newUser =
+      role === "farmer"
+        ? new Farmer({ name, email, password, location, role })
+        : new User({ name, email, password, pincode, role });
 
     await newUser.save();
+
+    // Send welcome email (optional)
     try {
-      if (role !== 'admin') { // Don't send welcome email to admins
-        await sendEmail('welcomeUser', [name, email]);
-      }
+      // if (role !== "admin") await sendEmail("welcomeUser", [name, email]);
     } catch (emailError) {
-      console.error('Welcome email failed to send:', emailError);
+      console.error("Welcome email failed:", emailError);
     }
+
     return res.status(201).json({
       token: generateToken(newUser._id, newUser.role),
       user: {
@@ -71,62 +52,40 @@ const registerUser = async (req, res) => {
         email: newUser.email,
         role: newUser.role,
         status: newUser.status,
-        pincode: newUser.pincode || null,
-        location: newUser.location || null,
+        pincode: newUser.address?.pincode || null,
+        location: newUser.address?.city || newUser.location || null,
       },
     });
   } catch (error) {
-    console.error("❌ Error in registerUser:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Register error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
 // =============================
-// 🔐 Login (User or Farmer)
+// 🔐 Login User/Farmer
 // =============================
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    console.log("Login attempt for:", email, password);
-    
-    if (!email || !password) {
+    let email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
+    if (!email || !password)
       return res.status(400).json({ message: "Please provide email and password" });
-    }
 
-    // Check both collections with proper field selection
+    // Search User collection
     let user = await User.findOne({ email }).select("+password").exec();
-    console.log("User found in User collection:", user ? "Yes" : "No");
-    
-    if (!user) {
-      user = await Farmer.findOne({ email }).select("+password").exec();
-      console.log("User found in Farmer collection:", user ? "Yes" : "No");
-    }
+    if (!user) user = await Farmer.findOne({ email }).select("+password").exec();
 
-    if (!user) {
-      console.log("No user found with email:", email);
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
+    if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
-    console.log("User details:", {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-      hasPassword: !!user.password
-    });
-
-    // Check if user has a password (for social login cases)
-    if (!user.password) {
-      return res.status(400).json({ 
-        message: "This email is registered with social login. Please use social login option." 
+    if (!user.password)
+      return res.status(400).json({
+        message: "This email is registered with social login. Please use social login.",
       });
-    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match result:", isMatch);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
+    if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
 
     return res.status(200).json({
       token: generateToken(user._id, user.role),
@@ -137,12 +96,12 @@ const loginUser = async (req, res) => {
         role: user.role,
         status: user.status,
         pincode: user.address?.pincode || null,
-        location: user.address?.city || null,
+        location: user.address?.city || user.location || null,
       },
     });
   } catch (error) {
-    console.error("❌ Error in loginUser:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Login error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 

@@ -87,25 +87,43 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email,password);
+    console.log("Login attempt for:", email, password);
+    
     if (!email || !password) {
       return res.status(400).json({ message: "Please provide email and password" });
     }
 
-    // check both collections
-    let user = await User.findOne({ email }).select("+password");
-    console.log(user)
+    // Check both collections with proper field selection
+    let user = await User.findOne({ email }).select("+password").exec();
+    console.log("User found in User collection:", user ? "Yes" : "No");
+    
     if (!user) {
-      user = await Farmer.findOne({ email }).select("+password");
+      user = await Farmer.findOne({ email }).select("+password").exec();
+      console.log("User found in Farmer collection:", user ? "Yes" : "No");
     }
 
     if (!user) {
+      console.log("No user found with email:", email);
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
+    console.log("User details:", {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      hasPassword: !!user.password
+    });
+
+    // Check if user has a password (for social login cases)
+    if (!user.password) {
+      return res.status(400).json({ 
+        message: "This email is registered with social login. Please use social login option." 
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
-    
-console.log("Password check:", isMatch, password, user.password);
+    console.log("Password match result:", isMatch);
+
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -118,8 +136,8 @@ console.log("Password check:", isMatch, password, user.password);
         email: user.email,
         role: user.role,
         status: user.status,
-        pincode: user.pincode || null,
-        location: user.location || null,
+        pincode: user.address?.pincode || null,
+        location: user.address?.city || null,
       },
     });
   } catch (error) {

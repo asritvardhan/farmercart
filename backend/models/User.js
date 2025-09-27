@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -10,13 +11,13 @@ const userSchema = new mongoose.Schema(
       street: String,
       city: String,
       state: String,
-      pincode: String, // Changed to String to match frontend
-      landmark: String
+      pincode: String,
+      landmark: String,
     },
     profilePicture: { type: String, default: null },
     preferences: {
       notifications: { type: Boolean, default: true },
-      newsletter: { type: Boolean, default: false }
+      newsletter: { type: Boolean, default: false },
     },
     role: { type: String, enum: ['farmer', 'user', 'admin'], default: 'user' },
     status: {
@@ -26,17 +27,15 @@ const userSchema = new mongoose.Schema(
         return this.role === 'farmer' ? 'pending' : 'approved';
       },
     },
-    // Add social login fields
-    socialId: { type: String }, // For Google/Facebook login
-    authProvider: { type: String, enum: ['local', 'google', 'facebook'] }
+    socialId: { type: String }, // Google/Facebook login
+    authProvider: { type: String, enum: ['local', 'google', 'facebook'], default: 'local' },
   },
   { timestamps: true }
 );
 
-// Add a pre-save hook to handle password hashing
-userSchema.pre('save', async function(next) {
+// Pre-save hook: hash password only if modified or new
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password') || !this.password) return next();
-  
   try {
     this.password = await bcrypt.hash(this.password, 10);
     next();
@@ -44,4 +43,5 @@ userSchema.pre('save', async function(next) {
     next(error);
   }
 });
+
 module.exports = mongoose.model('User', userSchema);

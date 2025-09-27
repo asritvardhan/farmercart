@@ -44,7 +44,7 @@ const AddProduct = () => {
       const token = localStorage.getItem("token");
       console.log(token);
       await axios.post(
-        "http://localhost:5000/api/farmer/products",
+        `${import.meta.env.VITE_API_URL}/api/farmer/products`,
         { ...form, images: imageUrls },
         { headers: { Authorization: `Bearer ${token}` } }
       );

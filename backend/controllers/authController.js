@@ -94,6 +94,7 @@ const loginUser = async (req, res) => {
 
     // check both collections
     let user = await User.findOne({ email }).select("+password");
+    console.log(user)
     if (!user) {
       user = await Farmer.findOne({ email }).select("+password");
     }

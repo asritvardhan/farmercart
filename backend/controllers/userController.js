@@ -4,6 +4,7 @@ const Cart = require("../models/Cart");
 const User = require("../models/User");
 const Order = require("../models/Order");
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 const { sendEmail } = require("../utils/emailService"); // ADD THIS LINE
 // ✅ Get all approved farmers
 const getFarmers = async (req, res) => {
@@ -161,85 +162,145 @@ const clearCart = async (req, res) => {
 };
 
 // ✅ Enhanced Get User Profile with more details
+// ✅ Fixed Get User Profile
 const getProfile = async (req, res) => {
   try {
     const { userId } = req.params;
+    
+    console.log("Fetching profile for user:", userId); // Debug log
     
     // Verify the user is accessing their own profile
     if (req.user._id.toString() !== userId && req.user.role !== 'admin') {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    const user = await User.findById(userId)
-      .select("-password")
-      .populate({
-        path: 'orders',
-        options: { sort: { createdAt: -1 }, limit: 5 },
-        select: 'totalPrice status createdAt'
-      });
+    // First, get the user without population to check if exists
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-    if (!user) return res.status(404).json({ error: "User not found" });
+    // Get orders with safe population
+    const orders = await Order.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('totalPrice status createdAt')
+      .lean();
 
-    // Calculate user stats
+    // Calculate stats safely
     const totalOrders = await Order.countDocuments({ user: userId });
-    const totalSpent = await Order.aggregate([
-      { $match: { user: new mongoose.Types.ObjectId(userId), status: 'Delivered' } },
-      { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+    
+    const totalSpentResult = await Order.aggregate([
+      { 
+        $match: { 
+          user: new mongoose.Types.ObjectId(userId), 
+          status: 'Delivered' 
+        } 
+      },
+      { 
+        $group: { 
+          _id: null, 
+          total: { $sum: '$totalPrice' } 
+        } 
+      }
     ]);
 
+    const totalSpent = totalSpentResult[0]?.total || 0;
+
+    // Build response object safely
     const profileWithStats = {
-      ...user.toObject(),
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || "",
+      address: user.address || {
+        street: "",
+        city: "",
+        state: "",
+        pincode: "",
+        landmark: ""
+      },
+      profilePicture: user.profilePicture || "",
       stats: {
         totalOrders,
-        totalSpent: totalSpent[0]?.total || 0,
+        totalSpent,
         memberSince: user.createdAt
-      }
+      },
+      orders: orders
     };
 
+    console.log("Profile data fetched successfully"); // Debug log
     res.json(profileWithStats);
+    
   } catch (err) {
     console.error("Error in getProfile:", err);
-    res.status(500).json({ error: "Failed to fetch profile" });
+    
+    // More specific error handling
+    if (err.name === 'CastError') {
+      return res.status(400).json({ error: "Invalid user ID format" });
+    }
+    
+    res.status(500).json({ 
+      error: "Failed to fetch profile",
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
-
-// ✅ Enhanced Update User Profile with validation and security
+// ✅ Fixed Update User Profile
 const updateProfile = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { name, email, phone, address, pincode, currentPassword, newPassword } = req.body;
+    const { name, email, phone, address, currentPassword, newPassword } = req.body;
+
+    console.log("Update profile request:", { userId, body: req.body }); // Debug log
 
     // Verify user ownership
     if (req.user._id.toString() !== userId) {
       return res.status(403).json({ error: "Access denied" });
     }
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    // Check if email already exists (for other users)
-    if (email && email !== user.email) {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ error: "Email already in use" });
-      }
+    // Get user WITH password for comparison
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Update basic info
     const updates = {};
     if (name) updates.name = name;
-    if (email) updates.email = email;
+    if (email && email !== user.email) {
+      // Check if email already exists (for other users)
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ error: "Email already in use" });
+      }
+      updates.email = email;
+    }
     if (phone) updates.phone = phone;
     if (address) updates.address = address;
-    if (pincode) updates.pincode = pincode;
 
-    // Password change with validation
+    // Password change with validation - ONLY if newPassword is provided
     if (newPassword) {
+      console.log("Password change requested"); // Debug log
+      
       if (!currentPassword) {
         return res.status(400).json({ error: "Current password is required" });
       }
+
+      // Check if user has a password (might be social login user)
+      if (!user.password) {
+        return res.status(400).json({ error: "Password change not available for this account type" });
+      }
+
+      // Validate currentPassword is not empty
+      if (typeof currentPassword !== 'string' || currentPassword.trim() === '') {
+        return res.status(400).json({ error: "Current password cannot be empty" });
+      }
+
+      console.log("Comparing passwords..."); // Debug log
       
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      // Safe password comparison
+      const isMatch = await bcrypt.compare(currentPassword.trim(), user.password);
       if (!isMatch) {
         return res.status(400).json({ error: "Current password is incorrect" });
       }
@@ -249,7 +310,10 @@ const updateProfile = async (req, res) => {
       }
 
       updates.password = await bcrypt.hash(newPassword, 10);
+      console.log("Password updated successfully"); // Debug log
     }
+
+    console.log("Final updates:", updates); // Debug log
 
     const updatedUser = await User.findByIdAndUpdate(
       userId, 
@@ -261,6 +325,7 @@ const updateProfile = async (req, res) => {
       message: "Profile updated successfully", 
       user: updatedUser 
     });
+    
   } catch (err) {
     console.error("Error in updateProfile:", err);
     
@@ -269,7 +334,10 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({ error: errors.join(', ') });
     }
     
-    res.status(500).json({ error: "Failed to update profile" });
+    res.status(500).json({ 
+      error: "Failed to update profile",
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
 

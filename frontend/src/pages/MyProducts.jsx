@@ -13,7 +13,7 @@ const MyProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/farmer/products", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/farmer/products`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         setProducts(res.data);
@@ -37,7 +37,7 @@ const MyProducts = () => {
   const handleSave = async (productId) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/farmer/products/${productId}`,
+        `${import.meta.env.VITE_API_URL}/api/farmer/products/${productId}`,
         editForm,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
@@ -45,7 +45,7 @@ const MyProducts = () => {
       setEditingProductId(null);
 
       // refresh list
-      const res = await axios.get("http://localhost:5000/api/farmer/products", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/farmer/products`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setProducts(res.data);
@@ -66,14 +66,14 @@ const MyProducts = () => {
   const handleReplySubmit = async (productId, reviewId) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/farmer/products/${productId}/reviews/${reviewId}/reply`,
+        `${import.meta.env.VITE_API_URL}/api/farmer/products/${productId}/reviews/${reviewId}/reply`,
         { reply: replyForms[reviewId] },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
       alert("✅ Reply added!");
 
       // refresh products
-      const res = await axios.get("http://localhost:5000/api/farmer/products", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/farmer/products`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setProducts(res.data);

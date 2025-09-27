@@ -7,7 +7,7 @@ const FarmersList = ({ onSelectFarmer }) => {
   useEffect(() => {
     const fetchFarmers = async () => {
       try {
-        const res = await axios.get("/api/farmers"); // backend should send {name, location, distance, image}
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/farmers`); // backend should send {name, location, distance, image}
         // sort by distance ascending
         setFarmers(res.data.sort((a, b) => a.distance - b.distance));
       } catch (err) {

@@ -58,7 +58,7 @@ const AuthForm = ({ setUser }) => {
     setIsLoading(true);
 
     try {
-      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+      const endpoint = isLogin ? `${import.meta.env.VITE_API_URL}/api/auth/login` : `${import.meta.env.VITE_API_URL}/api/auth/register`;
       const data = isLogin ? loginForm : registrationForm;
       const response = await axios.post(endpoint, data);
 

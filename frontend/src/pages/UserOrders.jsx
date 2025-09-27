@@ -15,7 +15,7 @@ const UserOrders = () => {
   // Fetch orders - FIXED
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/user/orders/${userId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/orders/${userId}`);
       console.log("Fetched orders:", res.data); // Debug log
       setOrders(res.data || []);
     } catch (err) {
@@ -29,7 +29,7 @@ const UserOrders = () => {
     if (!userId) return;
     fetchOrders();
 
-    const socket = io("http://localhost:5000");
+    const socket = io(`${import.meta.env.VITE_API_URL}`);
     socket.emit("joinRoom", userId);
 
     socket.on("orderUpdated", (updatedOrder) => {
@@ -46,7 +46,7 @@ const UserOrders = () => {
   const cancelItem = async (orderId, itemId) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/user/orders/${orderId}/items/${itemId}/cancel`
+        `${import.meta.env.VITE_API_URL}/api/user/orders/${orderId}/items/${itemId}/cancel`
       );
       
       console.log("Cancel response:", response.data); // Debug log

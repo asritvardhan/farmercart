@@ -10,7 +10,7 @@ const AdminDashboard = ({ user }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("/api/admin/users", {
+      const response = await axios.get("${import.meta.env.VITE_API_URL}/api/admin/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
@@ -21,7 +21,7 @@ const AdminDashboard = ({ user }) => {
 
   const fetchFarmers = async () => {
     try {
-      const response = await axios.get("/api/admin/farmers", {
+      const response = await axios.get("${import.meta.env.VITE_API_URL}/api/admin/farmers", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFarmers(response.data);
@@ -34,7 +34,7 @@ const AdminDashboard = ({ user }) => {
     if (!farmerId) return;
     try {
       await axios.put(
-        `/api/admin/farmers/${farmerId}/status`,
+        `${import.meta.env.VITE_API_URL}/api/admin/farmers/${farmerId}/status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -8,7 +8,7 @@ const Home = ({ searchQuery, filterCategory }) => {
   // Fetch farmers from backend
   const fetchFarmers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/user/farmers");
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/farmers`);
       if (!response.ok) {
         throw new Error("Failed to fetch farmers");
       }

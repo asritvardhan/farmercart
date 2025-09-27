@@ -28,24 +28,46 @@ const Profile = ({ user, onProfileUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ totalOrders: 0, totalSpent: 0, memberSince: "" });
   const [recentOrders, setRecentOrders] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchProfileData();
+    if (user?._id) {
+      fetchProfileData();
+    }
   }, [user?._id]);
 
   const fetchProfileData = async () => {
     try {
+      setError("");
       const token = localStorage.getItem("token");
+      if (!token) {
+        setError("No authentication token found");
+        return;
+      }
+
       const res = await axios.get(
-        `http://localhost:5000/api/user/profile/${user._id}`,
+        `${import.meta.env.VITE_API_URL}/api/user/profile/${user._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      setProfile(res.data);
-      setStats(res.data.stats || {});
+      // Ensure address object has all required fields
+      const profileData = {
+        ...res.data,
+        address: {
+          street: res.data.address?.street || "",
+          city: res.data.address?.city || "",
+          state: res.data.address?.state || "",
+          pincode: res.data.address?.pincode || "",
+          landmark: res.data.address?.landmark || ""
+        }
+      };
+      
+      setProfile(profileData);
+      setStats(res.data.stats || { totalOrders: 0, totalSpent: 0, memberSince: "" });
       setRecentOrders(res.data.orders || []);
     } catch (err) {
       console.error("Error fetching profile:", err);
+      setError(err.response?.data?.error || "Failed to load profile");
     }
   };
 
@@ -76,10 +98,17 @@ const Profile = ({ user, onProfileUpdate }) => {
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
+      setError("");
       const token = localStorage.getItem("token");
+      
       const res = await axios.put(
-        `http://localhost:5000/api/user/profile/${user._id}/update`,
-        profile,
+        `${import.meta.env.VITE_API_URL}/api/user/profile/${user._id}/update`,
+        {
+          name: profile.name,
+          email: profile.email,
+          phone: profile.phone,
+          address: profile.address
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -89,26 +118,41 @@ const Profile = ({ user, onProfileUpdate }) => {
       alert("Profile updated successfully!");
     } catch (err) {
       const errorMsg = err.response?.data?.error || "Failed to update profile";
+      setError(errorMsg);
       alert(errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
+  // SINGLE handleChangePassword function (removed the duplicate)
   const handleChangePassword = async () => {
+    // Validate all fields are filled
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      alert("Please fill in all password fields");
+      return;
+    }
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       alert("New passwords don't match");
       return;
     }
 
+    if (passwordData.newPassword.length < 6) {
+      alert("New password must be at least 6 characters");
+      return;
+    }
+
     try {
       setLoading(true);
+      setError("");
       const token = localStorage.getItem("token");
-      await axios.put(
-        `http://localhost:5000/api/user/profile/${user._id}/update`,
+      
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/user/profile/${user._id}/update`,
         {
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword
+          currentPassword: passwordData.currentPassword.trim(),
+          newPassword: passwordData.newPassword.trim()
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -116,40 +160,53 @@ const Profile = ({ user, onProfileUpdate }) => {
       setPasswordMode(false);
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
       alert("Password changed successfully!");
+      
     } catch (err) {
       const errorMsg = err.response?.data?.error || "Failed to change password";
+      setError(errorMsg);
       alert(errorMsg);
+      console.error("Password change error:", err.response?.data);
     } finally {
       setLoading(false);
     }
   };
 
+  if (!user?._id) {
+    return (
+      <div className="profile-container">
+        <div className="error-message">User not loaded. Please log in again.</div>
+      </div>
+    );
+  }
+
   return (
     <div className="profile-container">
+      {error && <div className="error-message">{error}</div>}
+      
       <div className="profile-header">
         <div className="profile-avatar">
           {profile.profilePicture ? (
             <img src={profile.profilePicture} alt="Profile" />
           ) : (
             <div className="avatar-placeholder">
-              {profile.name?.charAt(0).toUpperCase()}
+              {profile.name?.charAt(0).toUpperCase() || "U"}
             </div>
           )}
         </div>
         <div className="profile-info">
-          <h1>{profile.name}</h1>
+          <h1>{profile.name || "User"}</h1>
           <p>{profile.email}</p>
-          <p>Member since {new Date(stats.memberSince).toLocaleDateString()}</p>
+          <p>Member since {stats.memberSince ? new Date(stats.memberSince).toLocaleDateString() : "N/A"}</p>
         </div>
       </div>
 
       <div className="profile-stats">
         <div className="stat-card">
-          <h3>{stats.totalOrders}</h3>
+          <h3>{stats.totalOrders || 0}</h3>
           <p>Total Orders</p>
         </div>
         <div className="stat-card">
-          <h3>₹{stats.totalSpent?.toLocaleString()}</h3>
+          <h3>₹{(stats.totalSpent || 0).toLocaleString()}</h3>
           <p>Total Spent</p>
         </div>
       </div>
@@ -230,7 +287,7 @@ const Profile = ({ user, onProfileUpdate }) => {
             </div>
           ) : (
             <div className="profile-details">
-              <p><strong>Name:</strong> {profile.name}</p>
+              <p><strong>Name:</strong> {profile.name || "Not provided"}</p>
               <p><strong>Email:</strong> {profile.email}</p>
               <p><strong>Phone:</strong> {profile.phone || "Not provided"}</p>
               <p><strong>Address:</strong> {profile.address?.street ? 
@@ -309,10 +366,10 @@ const Profile = ({ user, onProfileUpdate }) => {
             <div className="recent-orders">
               {recentOrders.map(order => (
                 <div key={order._id} className="order-item">
-                  <span>Order #{order._id.slice(-6)}</span>
+                  <span>Order #{order._id?.slice(-6) || "N/A"}</span>
                   <span>₹{order.totalPrice}</span>
-                  <span className={`status-${order.status.toLowerCase()}`}>
-                    {order.status}
+                  <span className={`status-${order.status?.toLowerCase() || "pending"}`}>
+                    {order.status || "Pending"}
                   </span>
                 </div>
               ))}

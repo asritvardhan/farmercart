@@ -1,6 +1,6 @@
 // ProductDetail.js - Updated with Reviews
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; 
 import axios from "axios";
 
 const ProductDetail = () => {
@@ -23,7 +23,7 @@ const ProductDetail = () => {
   const fetchProduct = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/user/products/${productId}`
+        `${import.meta.env.VITE_API_URL}/api/user/products/${productId}`
       );
       setProduct(res.data);
     } catch (err) {
@@ -33,7 +33,7 @@ const ProductDetail = () => {
 
   const addToCart = async () => {
     try {
-      await axios.post("http://localhost:5000/api/user/add", {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/user/add`, {
         userId,
         productId: product._id,
         quantity: selectedQty,
@@ -59,7 +59,7 @@ const ProductDetail = () => {
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/user/products/${productId}/reviews`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/user/products/${productId}/reviews`, {
         userId,
         rating,
         comment

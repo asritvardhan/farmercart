@@ -10,7 +10,7 @@ const Cart = () => {
 
   const fetchCart = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/user/${userId}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/${userId}`);
       setCart(res.data);
     } catch (err) {
       console.error("Error fetching cart:", err);
@@ -22,7 +22,7 @@ const Cart = () => {
   // Remove item
   const handleRemove = async (productId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/user/${userId}/${productId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/user/${userId}/${productId}`);
       fetchCart();
     } catch (err) { console.error(err); }
   };
@@ -32,7 +32,7 @@ const Cart = () => {
     if (quantity < 1) return;
     try {
       await axios.put(
-        `http://localhost:5000/api/user/cart/${userId}/${productId}`,
+        `${import.meta.env.VITE_API_URL}/api/user/cart/${userId}/${productId}`,
         { quantity }
       );
       fetchCart();
@@ -42,7 +42,7 @@ const Cart = () => {
   // Clear cart
   const handleClearCart = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/user/cart/${userId}/clear`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/user/cart/${userId}/clear`);
       fetchCart();
     } catch (err) { console.error(err); }
   };
@@ -54,7 +54,7 @@ const Cart = () => {
       return;
     }
     try {
-      const res = await axios.post("http://localhost:5000/api/user/order/cod", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/order/cod`, {
         userId,
         address
       });

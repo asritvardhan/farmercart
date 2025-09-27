@@ -12,7 +12,7 @@ const FarmerOrders = () => {
   // Fetch orders
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/farmer/orders", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/farmer/orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("Farmer orders:", res.data); // Debug
@@ -30,7 +30,7 @@ const FarmerOrders = () => {
       console.log("Updating status:", { orderId, itemId, newStatus }); // Debug
       
       const res = await axios.put(
-        `http://localhost:5000/api/farmer/orders/${orderId}/status`,
+        `${import.meta.env.VITE_API_URL}/api/farmer/orders/${orderId}/status`,
         { itemId, status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

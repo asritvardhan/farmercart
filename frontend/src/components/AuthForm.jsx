@@ -27,9 +27,8 @@ const AuthForm = ({ setUser }) => {
       if (!registrationForm.email) newErrors.email = "Email is required";
       if (!registrationForm.password) newErrors.password = "Password is required";
       if (!registrationForm.pincode) newErrors.pincode = "Pincode is required";
-      if (registrationForm.role === "farmer" && !registrationForm.location) {
+      if (registrationForm.role === "farmer" && !registrationForm.location)
         newErrors.location = "Location is required for farmers";
-      }
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -37,14 +36,9 @@ const AuthForm = ({ setUser }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (isLogin) {
-      setLoginForm({ ...loginForm, [name]: value });
-    } else {
-      setRegistrationForm({ ...registrationForm, [name]: value });
-    }
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: null });
-    }
+    if (isLogin) setLoginForm({ ...loginForm, [name]: value });
+    else setRegistrationForm({ ...registrationForm, [name]: value });
+    if (errors[name]) setErrors({ ...errors, [name]: null });
   };
 
   const toggleForm = () => {
@@ -58,30 +52,29 @@ const AuthForm = ({ setUser }) => {
     setIsLoading(true);
 
     try {
-      const endpoint = isLogin ? `${import.meta.env.VITE_API_URL}/api/auth/login` : `${import.meta.env.VITE_API_URL}/api/auth/register`;
+      const endpoint = isLogin
+        ? `${import.meta.env.VITE_API_URL}/api/auth/login`
+        : `${import.meta.env.VITE_API_URL}/api/auth/register`;
       const data = isLogin ? loginForm : registrationForm;
       const response = await axios.post(endpoint, data);
 
-      if (response.status === 200 || response.status === 201) {
-        const { token, user } = response.data;
+      const { token, user } = response.data;
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
 
-        setUser(user);
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("token", token);
-
-        if (user.role === "farmer") {
-          if (user.status === "pending") navigate("/farmer/pending");
-          else if (user.status === "rejected") navigate("/farmer/rejected");
-          else navigate("/farmer/dashboard");
-        } else if (user.role === "user") {
-          navigate("/user/dashboard");
-        } else if (user.role === "admin") {
-          navigate("/admin/dashboard");
-        }
+      // Redirect based on role & status
+      if (user.role === "farmer") {
+        if (user.status === "pending") navigate("/farmer/pending");
+        else if (user.status === "rejected") navigate("/farmer/rejected");
+        else navigate("/farmer/dashboard");
+      } else if (user.role === "user") {
+        navigate("/user/dashboard");
+      } else if (user.role === "admin") {
+        navigate("/admin/dashboard");
       }
-    } catch (error) {
-      console.error("Error during authentication:", error);
-      alert(error.response?.data?.message || "An error occurred. Please try again.");
+    } catch (err) {
+      alert(err.response?.data?.message || "An error occurred. Try again.");
     } finally {
       setIsLoading(false);
     }
@@ -93,93 +86,36 @@ const AuthForm = ({ setUser }) => {
         <h2>{isLogin ? "Login" : "Register"}</h2>
 
         {!isLogin && (
-          <div className="form-group">
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              onChange={handleChange}
-              value={registrationForm.name}
-              required
-            />
-            {errors.name && <span className="error">{errors.name}</span>}
-          </div>
-        )}
-
-        <div className="form-group">
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-            value={isLogin ? loginForm.email : registrationForm.email}
-            required
-          />
-          {errors.email && <span className="error">{errors.email}</span>}
-        </div>
-
-        <div className="form-group">
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            onChange={handleChange}
-            value={isLogin ? loginForm.password : registrationForm.password}
-            required
-          />
-          {errors.password && <span className="error">{errors.password}</span>}
-        </div>
-
-        {!isLogin && (
           <>
-            <div className="form-group">
-              <input
-                type="text"
-                name="pincode"
-                placeholder="Pincode"
-                onChange={handleChange}
-                value={registrationForm.pincode}
-                required
-              />
-              {errors.pincode && <span className="error">{errors.pincode}</span>}
-            </div>
+            <input type="text" name="name" placeholder="Full Name" value={registrationForm.name} onChange={handleChange} />
+            {errors.name && <span className="error">{errors.name}</span>}
 
-            <div className="form-group">
-              <select name="role" onChange={handleChange} value={registrationForm.role}>
-                <option value="user">User</option>
-                <option value="farmer">Farmer</option>
-              </select>
-            </div>
+            <input type="text" name="pincode" placeholder="Pincode" value={registrationForm.pincode} onChange={handleChange} />
+            {errors.pincode && <span className="error">{errors.pincode}</span>}
+
+            <select name="role" value={registrationForm.role} onChange={handleChange}>
+              <option value="user">User</option>
+              <option value="farmer">Farmer</option>
+            </select>
 
             {registrationForm.role === "farmer" && (
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="location"
-                  placeholder="Location (e.g. Hyderabad)"
-                  onChange={handleChange}
-                  value={registrationForm.location}
-                  required
-                />
+              <>
+                <input type="text" name="location" placeholder="Location (e.g. Hyderabad)" value={registrationForm.location} onChange={handleChange} />
                 {errors.location && <span className="error">{errors.location}</span>}
-              </div>
+                <p>As a farmer, your registration will be reviewed by admin.</p>
+              </>
             )}
           </>
         )}
 
-        {registrationForm.role === "farmer" && !isLogin && (
-          <p className="info">
-            As a farmer, your registration will be reviewed by admin. You will be notified once your account is approved.
-          </p>
-        )}
+        <input type="email" name="email" placeholder="Email" value={isLogin ? loginForm.email : registrationForm.email} onChange={handleChange} />
+        {errors.email && <span className="error">{errors.email}</span>}
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Please wait..." : isLogin ? "Login" : "Register"}
-        </button>
+        <input type="password" name="password" placeholder="Password" value={isLogin ? loginForm.password : registrationForm.password} onChange={handleChange} />
+        {errors.password && <span className="error">{errors.password}</span>}
 
-        <p className="toggle" onClick={toggleForm}>
-          {isLogin ? "Don't have an account? Register here." : "Already have an account? Login here."}
-        </p>
+        <button type="submit" disabled={isLoading}>{isLoading ? "Please wait..." : isLogin ? "Login" : "Register"}</button>
+        <p onClick={toggleForm}>{isLogin ? "Don't have an account? Register" : "Already have an account? Login"}</p>
       </form>
     </div>
   );

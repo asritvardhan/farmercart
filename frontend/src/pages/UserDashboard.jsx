@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import logo from "../assets/logo.jpg";
 import Home from "./Home";
-import "../styles/UserDashboard.css";
+import "../styles/userDashboard.css";
 import LogoutButton from "../components/LogoutButton";
 import Cart from "../pages/Cart";
 import Profile from "../pages/Profile";
